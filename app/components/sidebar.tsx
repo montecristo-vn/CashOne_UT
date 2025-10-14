@@ -5,7 +5,7 @@ import styles from "./home.module.scss";
 import { IconButton } from "./button";
 import SettingsIcon from "../icons/settings.svg";
 import GithubIcon from "../icons/github.svg";
-import ChatGptIcon from "../icons/Logo_CashOne.webp";
+import CashOnelogo from "../icons/Logo_CashOne.webp";
 import AddIcon from "../icons/add.svg";
 import DeleteIcon from "../icons/delete.svg";
 import MaskIcon from "../icons/mask.svg";
@@ -252,7 +252,16 @@ export function SideBar(props: { className?: string }) {
       <SideBarHeader
         title="CashOne"
         subTitle="Trợ lý ảo của phòng kế toán OneMount"
-        logo={<ChatGptIcon />}
+        logo={
+        <Image
+         src="/llm-icons/Logo_CashOne.webp"
+         alt="CashOne"
+          width={40}
+          height={40}
+          priority
+           />
+          }
+
         shouldNarrow={shouldNarrow}
       >
         <div className={styles["sidebar-header-bar"]}>
