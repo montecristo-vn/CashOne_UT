@@ -1,11 +1,11 @@
+// =========================
+// 🧩 IMPORTS
+// =========================
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
-
 import styles from "./home.module.scss";
-
 import { IconButton } from "./button";
 import SettingsIcon from "../icons/settings.svg";
 import GithubIcon from "../icons/github.svg";
-import CashOnelogo from "../icons/Logo_CashOne.webp";
 import AddIcon from "../icons/add.svg";
 import DeleteIcon from "../icons/delete.svg";
 import MaskIcon from "../icons/mask.svg";
@@ -14,9 +14,7 @@ import DragIcon from "../icons/drag.svg";
 import DiscoveryIcon from "../icons/discovery.svg";
 
 import Locale from "../locales";
-
 import { useAppConfig, useChatStore } from "../store";
-
 import {
   DEFAULT_SIDEBAR_WIDTH,
   MAX_SIDEBAR_WIDTH,
@@ -33,6 +31,15 @@ import { Selector, showConfirm } from "./ui-lib";
 import clsx from "clsx";
 import { isMcpEnabled } from "../mcp/actions";
 
+// ✅ Thêm import mới cho Next.js Image (dùng hiển thị logo)
+import Image from "next/image"; // <-- Thay đổi #1: thêm dòng này
+
+// ❌ Xóa dòng import ảnh .webp nếu có (vì ảnh trong thư mục public không cần import)
+// import CashOnelogo from "../icons/Logo_CashOne.webp"; // <-- Thay đổi #2: xóa dòng này
+
+// =========================
+// 🧭 DỮ LIỆU CẤU HÌNH
+// =========================
 const DISCOVERY = [
   { name: Locale.Plugin.Name, path: Path.Plugins },
   { name: "Stable Diffusion", path: Path.Sd },
@@ -43,6 +50,9 @@ const ChatList = dynamic(async () => (await import("./chat-list")).ChatList, {
   loading: () => null,
 });
 
+// =========================
+// 🎹 HOOKS & COMPONENTS
+// =========================
 export function useHotKey() {
   const chatStore = useChatStore();
 
@@ -56,7 +66,6 @@ export function useHotKey() {
         }
       }
     };
-
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   });
@@ -64,7 +73,6 @@ export function useHotKey() {
 
 export function useDragSideBar() {
   const limit = (x: number) => Math.min(MAX_SIDEBAR_WIDTH, x);
-
   const config = useAppConfig();
   const startX = useRef(0);
   const startDragWidth = useRef(config.sidebarWidth ?? DEFAULT_SIDEBAR_WIDTH);
@@ -81,15 +89,12 @@ export function useDragSideBar() {
   };
 
   const onDragStart = (e: MouseEvent) => {
-    // Remembers the initial width each time the mouse is pressed
     startX.current = e.clientX;
     startDragWidth.current = config.sidebarWidth;
     const dragStartTime = Date.now();
 
     const handleDragMove = (e: MouseEvent) => {
-      if (Date.now() < lastUpdateTime.current + 20) {
-        return;
-      }
+      if (Date.now() < lastUpdateTime.current + 20) return;
       lastUpdateTime.current = Date.now();
       const d = e.clientX - startX.current;
       const nextWidth = limit(startDragWidth.current + d);
@@ -103,15 +108,10 @@ export function useDragSideBar() {
     };
 
     const handleDragEnd = () => {
-      // In useRef the data is non-responsive, so `config.sidebarWidth` can't get the dynamic sidebarWidth
       window.removeEventListener("pointermove", handleDragMove);
       window.removeEventListener("pointerup", handleDragEnd);
-
-      // if user click the drag icon, should toggle the sidebar
       const shouldFireClick = Date.now() - dragStartTime < 300;
-      if (shouldFireClick) {
-        toggleSideBar();
-      }
+      if (shouldFireClick) toggleSideBar();
     };
 
     window.addEventListener("pointermove", handleDragMove);
@@ -130,12 +130,12 @@ export function useDragSideBar() {
     document.documentElement.style.setProperty("--sidebar-width", sideBarWidth);
   }, [config.sidebarWidth, isMobileScreen, shouldNarrow]);
 
-  return {
-    onDragStart,
-    shouldNarrow,
-  };
+  return { onDragStart, shouldNarrow };
 }
 
+// =========================
+// 🧱 CÁC THÀNH PHẦN GIAO DIỆN
+// =========================
 export function SideBarContainer(props: {
   children: React.ReactNode;
   onDragStart: (e: MouseEvent) => void;
@@ -154,7 +154,6 @@ export function SideBarContainer(props: {
         [styles["narrow-sidebar"]]: shouldNarrow,
       })}
       style={{
-        // #3016 disable transition on ios mobile screen
         transition: isMobileScreen && isIOSMobile ? "none" : undefined,
       }}
     >
@@ -169,6 +168,9 @@ export function SideBarContainer(props: {
   );
 }
 
+// =========================
+// 🧩 HEADER CỦA SIDEBAR
+// =========================
 export function SideBarHeader(props: {
   title?: string | React.ReactNode;
   subTitle?: string | React.ReactNode;
@@ -198,6 +200,9 @@ export function SideBarHeader(props: {
   );
 }
 
+// =========================
+// ⚙️ BODY & TAIL
+// =========================
 export function SideBarBody(props: {
   children: React.ReactNode;
   onClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
@@ -215,7 +220,6 @@ export function SideBarTail(props: {
   secondaryAction?: React.ReactNode;
 }) {
   const { primaryAction, secondaryAction } = props;
-
   return (
     <div className={styles["sidebar-tail"]}>
       <div className={styles["sidebar-actions"]}>{primaryAction}</div>
@@ -224,17 +228,19 @@ export function SideBarTail(props: {
   );
 }
 
+// =========================
+// 🧭 CHÍNH: SIDEBAR
+// =========================
 export function SideBar(props: { className?: string }) {
   useHotKey();
   const { onDragStart, shouldNarrow } = useDragSideBar();
-  const [showDiscoverySelector, setshowDiscoverySelector] = useState(false);
+  const [showDiscoverySelector, setShowDiscoverySelector] = useState(false);
   const navigate = useNavigate();
   const config = useAppConfig();
   const chatStore = useChatStore();
   const [mcpEnabled, setMcpEnabled] = useState(false);
 
   useEffect(() => {
-    // 检查 MCP 是否启用
     const checkMcpStatus = async () => {
       const enabled = await isMcpEnabled();
       setMcpEnabled(enabled);
@@ -249,19 +255,19 @@ export function SideBar(props: { className?: string }) {
       shouldNarrow={shouldNarrow}
       {...props}
     >
+      {/* ✅ Thay đổi #3: Logo mới */}
       <SideBarHeader
         title="CashOne"
         subTitle="Trợ lý ảo của phòng kế toán OneMount"
         logo={
-        <Image
-         src="/llm-icons/Logo_CashOne.webp"
-         alt="CashOne"
-          width={40}
-          height={40}
-          priority
-           />
-          }
-
+          <Image
+            src="/llm-icons/Logo_CashOne.webp"
+            alt="CashOne"
+            width={40}
+            height={40}
+            priority
+          />
+        }
         shouldNarrow={shouldNarrow}
       >
         <div className={styles["sidebar-header-bar"]}>
@@ -293,36 +299,32 @@ export function SideBar(props: { className?: string }) {
             icon={<DiscoveryIcon />}
             text={shouldNarrow ? undefined : Locale.Discovery.Name}
             className={styles["sidebar-bar-button"]}
-            onClick={() => setshowDiscoverySelector(true)}
+            onClick={() => setShowDiscoverySelector(true)}
             shadow
           />
         </div>
         {showDiscoverySelector && (
           <Selector
-            items={[
-              ...DISCOVERY.map((item) => {
-                return {
-                  title: item.name,
-                  value: item.path,
-                };
-              }),
-            ]}
-            onClose={() => setshowDiscoverySelector(false)}
-            onSelection={(s) => {
-              navigate(s[0], { state: { fromHome: true } });
-            }}
+            items={DISCOVERY.map((item) => ({
+              title: item.name,
+              value: item.path,
+            }))}
+            onClose={() => setShowDiscoverySelector(false)}
+            onSelection={(s) => navigate(s[0], { state: { fromHome: true } })}
           />
         )}
       </SideBarHeader>
+
+      {/* BODY */}
       <SideBarBody
         onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            navigate(Path.Home);
-          }
+          if (e.target === e.currentTarget) navigate(Path.Home);
         }}
       >
         <ChatList narrow={shouldNarrow} />
       </SideBarBody>
+
+      {/* TAIL */}
       <SideBarTail
         primaryAction={
           <>
