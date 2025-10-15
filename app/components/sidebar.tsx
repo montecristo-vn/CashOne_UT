@@ -261,7 +261,7 @@ export function SideBar(props: { className?: string }) {
         subTitle="Trợ lý ảo của phòng kế toán OneMount"
         logo={
           <Image
-            src="/icons/Logo_CashOne.webp"
+            src="/Logo_CashOne.webp"
             alt="CashOne"
             width={40}
             height={40}
