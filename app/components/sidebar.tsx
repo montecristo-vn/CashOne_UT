@@ -169,7 +169,8 @@ export function SideBarContainer(props: {
 }
 
 // =========================
-// 🧩 HEADER CỦA SIDEBAR
+// =========================
+// 🧩 HEADER CỦA SIDEBAR (đã làm đẹp lại)
 // =========================
 export function SideBarHeader(props: {
   title?: string | React.ReactNode;
@@ -179,6 +180,7 @@ export function SideBarHeader(props: {
   shouldNarrow?: boolean;
 }) {
   const { title, subTitle, logo, children, shouldNarrow } = props;
+
   return (
     <Fragment>
       <div
@@ -186,15 +188,48 @@ export function SideBarHeader(props: {
           [styles["sidebar-header-narrow"]]: shouldNarrow,
         })}
         data-tauri-drag-region
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          gap: "12px",
+          padding: "10px 16px",
+        }}
       >
-        <div className={styles["sidebar-title-container"]}>
-          <div className={styles["sidebar-title"]} data-tauri-drag-region>
+        {/* ✅ Logo bên trái */}
+        <div className={clsx(styles["sidebar-logo"], "no-dark")} style={{ flexShrink: 0 }}>
+          {logo}
+        </div>
+
+        {/* ✅ Tiêu đề và phụ đề bên phải logo */}
+        <div
+          className={styles["sidebar-title-container"]}
+          style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}
+        >
+          <div
+            className={styles["sidebar-title"]}
+            data-tauri-drag-region
+            style={{
+              fontWeight: 700,
+              fontSize: "1.1rem",
+              lineHeight: "1.2",
+            }}
+          >
             {title}
           </div>
-          <div className={styles["sidebar-sub-title"]}>{subTitle}</div>
+          <div
+            className={styles["sidebar-sub-title"]}
+            style={{
+              fontSize: "0.85rem",
+              color: "#666",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {subTitle}
+          </div>
         </div>
-        <div className={clsx(styles["sidebar-logo"], "no-dark")}>{logo}</div>
       </div>
+
       {children}
     </Fragment>
   );
