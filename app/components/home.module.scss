@@ -146,8 +146,18 @@
 }
 
 .sidebar-logo {
-  display: inline-flex;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px; // tạo khoảng cách với chữ
+  img {
+    border-radius: 8px; // bo góc nhẹ
+    object-fit: contain;
+    background: white; // tránh viền mờ nếu logo trong suốt
+    padding: 2px;
+  }
 }
+
 
 .sidebar-title-container {
   display: inline-flex;
