@@ -266,6 +266,7 @@ export function SideBar(props: { className?: string }) {
             width={40}
             height={40}
             priority
+            unoptimized   //
           />
         }
         shouldNarrow={shouldNarrow}
